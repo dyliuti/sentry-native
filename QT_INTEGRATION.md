@@ -8,6 +8,7 @@
   - `include/sentry.h` - 头文件
   - `lib/sentry.lib` - 静态库
   - `bin/sentry.dll` - 动态库
+  - `exe/crashpad_handler.exe` - 崩溃处理程序
 
 ### ⏳ macOS 编译（需在 Mac 上执行）
 
