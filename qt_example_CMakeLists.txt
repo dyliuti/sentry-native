@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.16)
+project(MyQtApp)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
+
+# Sentry SDK 配置
+if(WIN32)
+    set(SENTRY_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/output/windows/include")
+    set(SENTRY_LIB_DIR "${CMAKE_SOURCE_DIR}/output/windows/lib")
+    set(SENTRY_BIN_DIR "${CMAKE_SOURCE_DIR}/output/windows/bin")
+elseif(APPLE)
+    set(SENTRY_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/output/macos/include")
+    set(SENTRY_LIB_DIR "${CMAKE_SOURCE_DIR}/output/macos/lib")
+    set(SENTRY_BIN_DIR "${CMAKE_SOURCE_DIR}/output/macos/bin")
+endif()
+
+add_executable(MyQtApp main.cpp)
+
+target_include_directories(MyQtApp PRIVATE ${SENTRY_INCLUDE_DIR})
+target_link_directories(MyQtApp PRIVATE ${SENTRY_LIB_DIR})
+
+if(WIN32)
+    target_link_libraries(MyQtApp PRIVATE sentry)
+    # 复制 DLL 到输出目录
+    add_custom_command(TARGET MyQtApp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${SENTRY_BIN_DIR}/sentry.dll"
+        $<TARGET_FILE_DIR:MyQtApp>)
+elseif(APPLE)
+    target_link_libraries(MyQtApp PRIVATE ${SENTRY_LIB_DIR}/libsentry.a)
+endif()
+
+target_link_libraries(MyQtApp PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets)
